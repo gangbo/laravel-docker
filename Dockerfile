@@ -1,6 +1,4 @@
 FROM php:7.3-fpm
-# Copy composer.lock and composer.json
-COPY composer.lock composer.json /var/www/
 # Set working directory
 WORKDIR /var/www
 # Install dependencies
@@ -20,7 +18,7 @@ RUN apt-get install -y \
     git \
     curl
 # Clear cache
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+#RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 # Install extensions
 RUN docker-php-ext-install pdo_mysql mbstring zip exif pcntl
 RUN docker-php-ext-configure gd --with-gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ --with-png-dir=/usr/include/
@@ -34,6 +32,9 @@ RUN useradd -u 1000 -ms /bin/bash -g www www
 COPY . /var/www
 # Copy existing application directory permissions
 COPY --chown=www:www . /var/www
+
+# Download via https://pecl.php.net/package/swoole
+RUN pecl install swoole-4.5.2.tgz
 # Change current user to www
 USER www
 # Expose port 9000 and start php-fpm server
