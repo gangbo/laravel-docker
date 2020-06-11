@@ -23,20 +23,25 @@ RUN apt-get install -y \
 RUN docker-php-ext-install pdo_mysql mbstring zip exif pcntl
 RUN docker-php-ext-configure gd --with-gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ --with-png-dir=/usr/include/
 RUN docker-php-ext-install gd
+# Download via https://pecl.php.net/package/swoole
+RUN pecl install ./docker/swoole-4.5.2.tgz
+
 # Install composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+COPY ./docker/composer.phar /usr/local/bin/composer
+RUN chmod +x /usr/local/bin/composer
+
 # Add user for laravel application
 RUN groupadd -g 1000 www
 RUN useradd -u 1000 -ms /bin/bash -g www www
+
 # Copy existing application directory contents
 COPY . /var/www
 # Copy existing application directory permissions
 COPY --chown=www:www . /var/www
 
-# Download via https://pecl.php.net/package/swoole
-RUN pecl install swoole-4.5.2.tgz
 # Change current user to www
 USER www
 # Expose port 9000 and start php-fpm server
 EXPOSE 9000
+EXPOSE 1215
 CMD ["php-fpm"]
