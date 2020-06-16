@@ -15,7 +15,6 @@ RUN apt-get install -y \
     jpegoptim optipng pngquant gifsicle \
     vim \
     unzip \
-    git \
     curl
 # Clear cache
 #RUN apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -28,11 +27,12 @@ RUN pecl install ./docker/swoole-4.5.2.tgz
 
 # Install composer
 COPY ./docker/composer.phar /usr/local/bin/composer
-RUN chmod +x /usr/local/bin/composer
+RUN chmod +x /usr/local/bin/composer && \
+    composer config -g repo.packagist composer https://mirrors.aliyun.com/composer/
 
 # Add user for laravel application
-RUN groupadd -g 1000 www
-RUN useradd -u 1000 -ms /bin/bash -g www www
+RUN groupadd -g 1000 www && \
+    useradd -u 1000 -ms /bin/bash -g www www
 
 # Copy existing application directory contents
 COPY . /var/www
